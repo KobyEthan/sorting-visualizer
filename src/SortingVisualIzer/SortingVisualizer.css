@@ -1,0 +1,33 @@
+html {
+  background-color: rgb(24, 24, 24);
+}
+
+.control-bar {
+  display: flex;
+  width: 95%;
+  margin: 0px 10px;
+  background-color: rgb(198, 193, 115);
+  height: 50px;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.control-bar button {
+  height: 50%;
+  padding: 3px 5px;
+  margin: 0px 10px;
+}
+
+.column-container {
+  display: flex;
+  flex-direction: row;
+  height: 100vh;
+  justify-content: center;
+}
+
+.column {
+  width: 4px;
+  background-color: rgb(219, 134, 44);
+  display: inline-block;
+  margin: 0 2px;
+}
