@@ -4,7 +4,6 @@ html {
 
 .control-bar {
   display: flex;
-  width: 95%;
   margin: 0 10px;
   background-color: rgb(198, 193, 115);
   height: 50px;
