@@ -50,13 +50,13 @@ export default class SortingVisualizer extends React.Component {
         setTimeout(() => {
           bar1Style.backgroundColor = color;
           bar2Style.backgroundColor = color;
-        }, (i * ANIMATION_SPEED_MS) / 2);
+        }, i * ANIMATION_SPEED_MS);
       } else {
         setTimeout(() => {
           const [bar1Idx, newHeight] = animations[i];
           const bar1Style = columns[bar1Idx].style;
           bar1Style.height = `${newHeight}px`;
-        }, (i * ANIMATION_SPEED_MS) / 2);
+        }, i * ANIMATION_SPEED_MS);
       }
     }
   }
@@ -214,6 +214,7 @@ export default class SortingVisualizer extends React.Component {
             ></div>
           ))}
         </div>
+        <h1 className="heading">Reload Page to Initialize Array</h1>
       </>
     );
   }
