@@ -5,7 +5,7 @@ html {
 .control-bar {
   display: flex;
   margin: 0 10px;
-  background-color: rgb(198, 193, 115);
+  background-color: rgb(194, 166, 10);
   height: 50px;
   justify-content: space-between;
   align-items: center;
@@ -15,6 +15,11 @@ html {
   height: 50%;
   padding: 3px 5px;
   margin: 0px 10px;
+  border-radius: 5px;
+  background-color: inherit;
+  color: rgb(0, 0, 0);
+  font-family: "roboto";
+  box-shadow: 0 0 5px 0 rgba(0, 0, 0, 0.5);
 }
 
 .column-container {
