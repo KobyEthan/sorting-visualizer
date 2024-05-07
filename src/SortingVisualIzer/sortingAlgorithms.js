@@ -1,33 +1,20 @@
 export function mergeSort(array) {
   const animations = [];
   if (array.length <= 1) return array;
-  const auxiliaryArray = array.slice();
-  mergeSortHelper(array, 0, array.length - 1, auxiliaryArray, animations);
+  const copyArray = array.slice();
+  mergeSortHelper(array, 0, array.length - 1, copyArray, animations);
   return animations;
 }
 
-function mergeSortHelper(
-  mainArray,
-  startIdx,
-  endIdx,
-  auxiliaryArray,
-  animations
-) {
+function mergeSortHelper(mainArray, startIdx, endIdx, copyArray, animations) {
   if (startIdx === endIdx) return;
   const midIdx = Math.floor((startIdx + endIdx) / 2);
-  mergeSortHelper(auxiliaryArray, startIdx, midIdx, mainArray, animations);
-  mergeSortHelper(auxiliaryArray, midIdx + 1, endIdx, mainArray, animations);
-  doMerge(mainArray, startIdx, midIdx, endIdx, auxiliaryArray, animations);
+  mergeSortHelper(copyArray, startIdx, midIdx, mainArray, animations);
+  mergeSortHelper(copyArray, midIdx + 1, endIdx, mainArray, animations);
+  merge(mainArray, startIdx, midIdx, endIdx, copyArray, animations);
 }
 
-function doMerge(
-  mainArray,
-  startIdx,
-  midIdx,
-  endIdx,
-  auxiliaryArray,
-  animations
-) {
+function merge(mainArray, startIdx, midIdx, endIdx, copyArray, animations) {
   let k = startIdx;
   let i = startIdx;
   let j = midIdx + 1;
@@ -35,36 +22,35 @@ function doMerge(
   while (i <= midIdx && j <= endIdx) {
     animations.push([i, j]);
     animations.push([i, j]);
-    if (auxiliaryArray[i] <= auxiliaryArray[j]) {
-      animations.push([k, auxiliaryArray[i]]);
-      mainArray[k++] = auxiliaryArray[i++];
+    if (copyArray[i] <= copyArray[j]) {
+      animations.push([k, copyArray[i]]);
+      mainArray[k++] = copyArray[i++];
     } else {
-      animations.push([k, auxiliaryArray[j]]);
-      mainArray[k++] = auxiliaryArray[j++];
+      animations.push([k, copyArray[j]]);
+      mainArray[k++] = copyArray[j++];
     }
   }
 
   while (i <= midIdx) {
     animations.push([i, i]);
     animations.push([i, i]);
-    animations.push([k, auxiliaryArray[i]]);
-    mainArray[k++] = auxiliaryArray[i++];
+    animations.push([k, copyArray[i]]);
+    mainArray[k++] = copyArray[i++];
   }
 
   while (j <= endIdx) {
     animations.push([j, j]);
     animations.push([j, j]);
-    animations.push([k, auxiliaryArray[j]]);
-    mainArray[k++] = auxiliaryArray[j++];
+    animations.push([k, copyArray[j]]);
+    mainArray[k++] = copyArray[j++];
   }
 }
 
 export function quickSort(array) {
   const animations = [];
-  if (array.length <= 1) return animations;
-  const copyArray = [...array];
+  const copyArray = array.slice();
   quickSortHelper(copyArray, 0, copyArray.length - 1, animations);
-  return animations;
+  return [animations, copyArray];
 }
 
 function quickSortHelper(array, low, high, animations) {
@@ -94,16 +80,10 @@ function partition(array, low, high, animations) {
 export function heapSort(array) {
   const animations = [];
 
-  // Build max heap
   buildMaxHeap(array, animations);
-
-  // Extract elements from heap
   for (let end = array.length - 1; end > 0; end--) {
-    // Swap root (largest element) with end of the heap
     animations.push([0, end]);
     swap(array, 0, end);
-
-    // Heapify root element
     heapify(array, 0, end - 1, animations);
   }
 
@@ -122,22 +102,15 @@ function heapify(array, idx, maxIdx, animations) {
   const left = 2 * idx + 1;
   const right = 2 * idx + 2;
 
-  // Compare with left child
   if (left <= maxIdx && array[left] > array[largest]) {
     largest = left;
   }
-
-  // Compare with right child
   if (right <= maxIdx && array[right] > array[largest]) {
     largest = right;
   }
-
-  // If largest is not root
   if (largest !== idx) {
     animations.push([idx, largest]);
     swap(array, idx, largest);
-
-    // Recursively heapify the affected subtree
     heapify(array, largest, maxIdx, animations);
   }
 }
@@ -160,7 +133,6 @@ export function bubbleSort(array) {
         swapped = true;
       }
     }
-    n--;
   } while (swapped);
 
   return swaps;

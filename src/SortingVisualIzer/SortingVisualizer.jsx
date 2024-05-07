@@ -8,14 +8,13 @@ import {
 import "./SortingVisualizer.css";
 
 const ANIMATION_SPEED_MS = 20;
-const NUMBER_OF_ARRAY_BARS = 100;
+const NUMBER_OF_ARRAY_COLS = 100;
 export default class SortingVisualizer extends React.Component {
   constructor(props) {
     super(props);
 
     this.state = {
       array: [],
-      isSorting: false,
     };
   }
 
@@ -25,8 +24,8 @@ export default class SortingVisualizer extends React.Component {
 
   resetArray() {
     const array = [];
-    for (let i = 0; i < NUMBER_OF_ARRAY_BARS; i++) {
-      array.push(randomInt(10, 600));
+    for (let i = 0; i < NUMBER_OF_ARRAY_COLS; i++) {
+      array.push(randomInt(5, 550));
     }
     this.setState({ array });
   }
@@ -42,85 +41,88 @@ export default class SortingVisualizer extends React.Component {
       const isColorChange = i % 3 !== 2;
 
       if (isColorChange) {
-        const [bar1Idx, bar2Idx] = animations[i];
+        const [col1Idx, col2Idx] = animations[i];
 
-        const bar1Style = columns[bar1Idx].style;
-        const bar2Style = columns[bar2Idx].style;
+        const col1Style = columns[col1Idx].style;
+        const col2Style = columns[col2Idx].style;
         const color = i % 3 === 0 ? "blue" : "rgb(219, 134, 44)";
         setTimeout(() => {
-          bar1Style.backgroundColor = color;
-          bar2Style.backgroundColor = color;
+          col1Style.backgroundColor = color;
+          col2Style.backgroundColor = color;
         }, i * ANIMATION_SPEED_MS);
       } else {
         setTimeout(() => {
-          const [bar1Idx, newHeight] = animations[i];
-          const bar1Style = columns[bar1Idx].style;
-          bar1Style.height = `${newHeight}px`;
+          const [col1Idx, newHeight] = animations[i];
+          const col1Style = columns[col1Idx].style;
+          col1Style.height = `${newHeight}px`;
         }, i * ANIMATION_SPEED_MS);
       }
     }
   }
 
   quickSort() {
-    const animations = quickSort(this.state.array);
-    this.animateQuick(animations);
+    const [animations, sortedArray] = quickSort(this.state.array);
+    this.animateQuick(animations, () => {
+      this.setState({ array: sortedArray });
+    });
   }
 
-  animateQuick(animations) {
+  animateQuick(animations, callback) {
     const columns = document.getElementsByClassName("column");
 
     animations.forEach((animation, i) => {
       const [idx1, idx2, type] = animation;
-      const bar1Style = columns[idx1].style;
-      const bar2Style = columns[idx2].style;
+      const col1Style = columns[idx1].style;
+      const col2Style = columns[idx2].style;
       if (type === "compare") {
         setTimeout(() => {
-          bar1Style.backgroundColor = "blue";
-          bar2Style.backgroundColor = "blue";
+          col1Style.backgroundColor = "blue";
+          col2Style.backgroundColor = "blue";
         }, i * ANIMATION_SPEED_MS);
       } else if (type === "swap") {
         setTimeout(() => {
-          const tempHeight = bar1Style.height;
-          bar1Style.height = bar2Style.height;
-          bar2Style.height = tempHeight;
+          const tempHeight = col1Style.height;
+          col1Style.height = col2Style.height;
+          col2Style.height = tempHeight;
         }, i * ANIMATION_SPEED_MS);
       }
 
       setTimeout(() => {
-        bar1Style.backgroundColor = "";
-        bar2Style.backgroundColor = "";
+        col1Style.backgroundColor = "";
+        col2Style.backgroundColor = "";
       }, (i + 1) * ANIMATION_SPEED_MS);
+      if (i === animations.length - 1) {
+        setTimeout(callback, (i + 1) * ANIMATION_SPEED_MS);
+      }
     });
   }
 
   heapSort() {
-    this.setState({ isSorting: true });
     const copyArray = [...this.state.array];
     const animations = heapSort(copyArray);
     this.animateHeap(animations);
-    this.setState({ isSorting: false });
   }
 
   animateHeap(animations) {
-    const arrayBars = document.getElementsByClassName("column");
+    const columns = document.getElementsByClassName("column");
 
     for (let i = 0; i < animations.length; i++) {
-      const [bar1Idx, bar2Idx] = animations[i];
-      const bar1Style = arrayBars[bar1Idx].style;
-      const bar2Style = arrayBars[bar2Idx].style;
+      const [col1Idx, col2Idx] = animations[i];
+      const col1Style = columns[col1Idx].style;
+      const col2Style = columns[col2Idx].style;
 
       setTimeout(() => {
-        bar1Style.backgroundColor = "blue";
-        bar2Style.backgroundColor = "blue";
+        col1Style.backgroundColor = "blue";
+        col2Style.backgroundColor = "blue";
       }, i * ANIMATION_SPEED_MS);
 
       setTimeout(() => {
-        const tempHeight = bar1Style.height;
-        bar1Style.height = bar2Style.height;
-        bar2Style.height = tempHeight;
+        const tempHeight = col1Style.height;
+        col1Style.height = col2Style.height;
+        col2Style.height = tempHeight;
 
-        bar1Style.backgroundColor = "";
-        bar2Style.backgroundColor = "";
+        col1Style.backgroundColor = "";
+        col2Style.backgroundColor = "";
       }, (i + 1) * ANIMATION_SPEED_MS);
     }
   }
@@ -137,42 +139,28 @@ export default class SortingVisualizer extends React.Component {
     const animations = [...swaps];
     const columns = document.getElementsByClassName("column");
 
-    const finalPositions = new Array(columns.length).fill(false);
-
     for (let i = 0; i < animations.length; i++) {
-      const [bar1Idx, bar2Idx, bar1Height, bar2Height] = animations[i];
+      const [col1Idx, col2Idx, col1Height, col2Height] = animations[i];
 
       setTimeout(() => {
-        columns[bar1Idx].style.backgroundColor = "blue";
+        columns[col1Idx].style.backgroundColor = "blue";
       }, i * ANIMATION_SPEED_MS);
 
       setTimeout(() => {
-        columns[bar1Idx].style.backgroundColor = "";
-        columns[bar2Idx].style.backgroundColor = "";
-
-        if (finalPositions[bar1Idx]) {
-          columns[bar1Idx].style.backgroundColor = "red";
-        }
-        if (finalPositions[bar2Idx]) {
-          columns[bar2Idx].style.backgroundColor = "red";
-        }
+        columns[col1Idx].style.backgroundColor = "";
+        columns[col2Idx].style.backgroundColor = "";
       }, (i + 1) * ANIMATION_SPEED_MS);
 
       setTimeout(() => {
-        columns[bar1Idx].style.height = `${bar2Height}px`;
-        columns[bar2Idx].style.height = `${bar1Height}px`;
+        columns[col1Idx].style.height = `${col2Height}px`;
+        columns[col2Idx].style.height = `${col1Height}px`;
 
         const newArray = [...this.state.array];
-        [newArray[bar1Idx], newArray[bar2Idx]] = [
-          newArray[bar2Idx],
-          newArray[bar1Idx],
+        [newArray[col1Idx], newArray[col2Idx]] = [
+          newArray[col2Idx],
+          newArray[col1Idx],
         ];
         this.setState({ array: newArray });
-
-        if (i === animations.length - 1) {
-          finalPositions[bar1Idx] = true;
-          finalPositions[bar2Idx] = true;
-        }
       }, (i + 1) * ANIMATION_SPEED_MS);
     }
   }
