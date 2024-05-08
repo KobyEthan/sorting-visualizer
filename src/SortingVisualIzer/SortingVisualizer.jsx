@@ -100,10 +100,13 @@ export default class SortingVisualizer extends React.Component {
   heapSort() {
     const copyArray = [...this.state.array];
     const animations = heapSort(copyArray);
-    this.animateHeap(animations);
+
+    this.animateHeap(animations, () => {
+      this.setState({ array: copyArray });
+    });
   }
 
-  animateHeap(animations) {
+  animateHeap(animations, callback) {
     const columns = document.getElementsByClassName("column");
 
     for (let i = 0; i < animations.length; i++) {
@@ -123,6 +126,10 @@ export default class SortingVisualizer extends React.Component {
 
         col1Style.backgroundColor = "";
         col2Style.backgroundColor = "";
+
+        if (i === animations.length - 1 && callback) {
+          setTimeout(callback, ANIMATION_SPEED_MS);
+        }
       }, (i + 1) * ANIMATION_SPEED_MS);
     }
   }

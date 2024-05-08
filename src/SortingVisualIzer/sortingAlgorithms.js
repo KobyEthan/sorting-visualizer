@@ -1,8 +1,19 @@
+function isSorted(array) {
+  for (let i = 0; i < array.length - 1; i++) {
+    if (array[i] > array[i + 1]) {
+      return false;
+    }
+  }
+  return true;
+}
+
 export function mergeSort(array) {
   const animations = [];
   if (array.length <= 1) return array;
   const copyArray = array.slice();
+  if (isSorted(copyArray)) return animations;
   mergeSortHelper(array, 0, array.length - 1, copyArray, animations);
+
   return animations;
 }
 
@@ -49,6 +60,7 @@ function merge(mainArray, startIdx, midIdx, endIdx, copyArray, animations) {
 export function quickSort(array) {
   const animations = [];
   const copyArray = array.slice();
+  if (isSorted(copyArray)) return [animations, copyArray];
   quickSortHelper(copyArray, 0, copyArray.length - 1, animations);
   return [animations, copyArray];
 }
@@ -79,7 +91,7 @@ function partition(array, low, high, animations) {
 
 export function heapSort(array) {
   const animations = [];
-
+  if (isSorted(array)) return animations;
   buildMaxHeap(array, animations);
   for (let end = array.length - 1; end > 0; end--) {
     animations.push([0, end]);
@@ -134,6 +146,8 @@ export function bubbleSort(array) {
       }
     }
   } while (swapped);
+
+  if (!swaps) return array;
 
   return swaps;
 }
