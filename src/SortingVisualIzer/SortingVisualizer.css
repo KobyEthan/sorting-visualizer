@@ -82,7 +82,7 @@ p {
 }
 
 .column {
-  width: 4px;
+  width: 5px;
   background-color: rgb(14, 175, 255);
   display: inline-block;
   margin: 0 2px;

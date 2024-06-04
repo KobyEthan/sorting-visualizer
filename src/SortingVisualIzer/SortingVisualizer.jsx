@@ -15,6 +15,7 @@ export default class SortingVisualizer extends React.Component {
       array: [],
       numCols: 100,
       animationSpeed: 15,
+      isSorting: false,
     };
   }
 
@@ -31,19 +32,35 @@ export default class SortingVisualizer extends React.Component {
   }
 
   handleSliderChange = (event) => {
+    if (this.state.isSorting) return;
     const numCols = event.target.value;
     const animationSpeed = 1500 / numCols;
     this.setState({ numCols, animationSpeed }, this.resetArray);
   };
 
-  mergeSort() {
-    const animations = mergeSort(this.state.array);
-    this.animateMerge(animations);
+  disableButtons() {
+    this.setState({ isSorting: true });
   }
 
-  animateMerge(animations) {
+  enableButtons() {
+    this.setState({ isSorting: false });
+  }
+
+  mergeSort() {
+    this.disableButtons();
+    const copyArray = [...this.state.array];
+    const animations = mergeSort(copyArray);
+
+    this.animateMerge(animations, () => {
+      this.setState({ array: copyArray });
+      this.enableButtons();
+    });
+  }
+
+  animateMerge(animations, callback) {
+    const columns = document.getElementsByClassName("column");
+
     for (let i = 0; i < animations.length; i++) {
-      const columns = document.getElementsByClassName("column");
       const isColorChange = i % 3 !== 2;
 
       if (isColorChange) {
@@ -61,15 +78,20 @@ export default class SortingVisualizer extends React.Component {
           const [col1Idx, newHeight] = animations[i];
           const col1Style = columns[col1Idx].style;
           col1Style.height = `${newHeight}px`;
-        }, i * this.state.animationSpeed);
+          if (i === animations.length - 1 && callback) {
+            setTimeout(callback, this.state.animationSpeed);
+          }
+        }, (i + 1) * this.state.animationSpeed);
       }
     }
   }
 
   quickSort() {
+    this.disableButtons();
     const [animations, sortedArray] = quickSort(this.state.array);
     this.animateQuick(animations, () => {
       this.setState({ array: sortedArray });
+      this.enableButtons();
     });
   }
 
@@ -104,11 +126,13 @@ export default class SortingVisualizer extends React.Component {
   }
 
   heapSort() {
+    this.disableButtons();
     const copyArray = [...this.state.array];
     const animations = heapSort(copyArray);
 
     this.animateHeap(animations, () => {
       this.setState({ array: copyArray });
+      this.enableButtons();
     });
   }
 
@@ -141,13 +165,17 @@ export default class SortingVisualizer extends React.Component {
   }
 
   bubbleSort() {
+    this.disableButtons();
     const copy = [...this.state.array];
     const swaps = bubbleSort(copy);
-    this.animateBubble(swaps);
+    this.animateBubble(swaps, this.enableButtons.bind(this));
   }
 
-  animateBubble(swaps) {
-    if (swaps.length === 0) return;
+  animateBubble(swaps, callback) {
+    if (swaps.length === 0) {
+      callback();
+      return;
+    }
 
     const animations = [...swaps];
     const columns = document.getElementsByClassName("column");
@@ -174,6 +202,7 @@ export default class SortingVisualizer extends React.Component {
           newArray[col1Idx],
         ];
         this.setState({ array: newArray });
+        if (i === animations.length - 1) callback();
       }, (i + 1) * this.state.animationSpeed);
     }
   }
@@ -193,12 +222,16 @@ export default class SortingVisualizer extends React.Component {
   // }
 
   render() {
-    const { array, numCols, animationSpeed } = this.state;
+    const { array, numCols, animationSpeed, isSorting } = this.state;
 
     return (
       <>
         <div className="control-bar">
-          <span id="heading" onClick={() => this.resetArray()}>
+          <span
+            id="heading"
+            onClick={() => !isSorting && this.resetArray()}
+            style={{ pointerEvents: isSorting ? "none" : "auto" }}
+          >
             Initialize Array
           </span>
           <div id="slider">
@@ -209,16 +242,37 @@ export default class SortingVisualizer extends React.Component {
               max="100"
               value={numCols}
               onChange={this.handleSliderChange}
+              disabled={isSorting}
             />
             <p id="details">
               {numCols} columns, {Math.floor(animationSpeed)} ms speed
             </p>
           </div>
           <div className="algo-button-container">
-            <p onClick={() => this.mergeSort()}>Merge Sort</p>
-            <p onClick={() => this.quickSort()}>Quick Sort</p>
-            <p onClick={() => this.heapSort()}>Heap Sort</p>
-            <p onClick={() => this.bubbleSort()}>Bubble Sort</p>
+            <p
+              onClick={() => !isSorting && this.mergeSort()}
+              style={{ pointerEvents: isSorting ? "none" : "auto" }}
+            >
+              Merge Sort
+            </p>
+            <p
+              onClick={() => !isSorting && this.quickSort()}
+              style={{ pointerEvents: isSorting ? "none" : "auto" }}
+            >
+              Quick Sort
+            </p>
+            <p
+              onClick={() => !isSorting && this.heapSort()}
+              style={{ pointerEvents: isSorting ? "none" : "auto" }}
+            >
+              Heap Sort
+            </p>
+            <p
+              onClick={() => !isSorting && this.bubbleSort()}
+              style={{ pointerEvents: isSorting ? "none" : "auto" }}
+            >
+              Bubble Sort
+            </p>
           </div>
           {/* <button onClick={() => this.testSortingAlgorithms()}>
             Test Algorithm
