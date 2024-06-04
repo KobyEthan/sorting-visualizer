@@ -7,14 +7,14 @@ import {
 } from "./sortingAlgorithms";
 import "./SortingVisualizer.css";
 
-const ANIMATION_SPEED_MS = 20;
-const NUMBER_OF_ARRAY_COLS = 100;
 export default class SortingVisualizer extends React.Component {
   constructor(props) {
     super(props);
 
     this.state = {
       array: [],
+      numCols: 100,
+      animationSpeed: 15,
     };
   }
 
@@ -24,11 +24,17 @@ export default class SortingVisualizer extends React.Component {
 
   resetArray() {
     const array = [];
-    for (let i = 0; i < NUMBER_OF_ARRAY_COLS; i++) {
-      array.push(randomInt(5, 550));
+    for (let i = 0; i < this.state.numCols; i++) {
+      array.push(randomInt(5, 600));
     }
     this.setState({ array });
   }
+
+  handleSliderChange = (event) => {
+    const numCols = event.target.value;
+    const animationSpeed = 1500 / numCols;
+    this.setState({ numCols, animationSpeed }, this.resetArray);
+  };
 
   mergeSort() {
     const animations = mergeSort(this.state.array);
@@ -45,17 +51,17 @@ export default class SortingVisualizer extends React.Component {
 
         const col1Style = columns[col1Idx].style;
         const col2Style = columns[col2Idx].style;
-        const color = i % 3 === 0 ? "blue" : "rgb(219, 134, 44)";
+        const color = i % 3 === 0 ? "red" : "rgb(14, 175, 255)";
         setTimeout(() => {
           col1Style.backgroundColor = color;
           col2Style.backgroundColor = color;
-        }, i * ANIMATION_SPEED_MS);
+        }, i * this.state.animationSpeed);
       } else {
         setTimeout(() => {
           const [col1Idx, newHeight] = animations[i];
           const col1Style = columns[col1Idx].style;
           col1Style.height = `${newHeight}px`;
-        }, i * ANIMATION_SPEED_MS);
+        }, i * this.state.animationSpeed);
       }
     }
   }
@@ -76,23 +82,23 @@ export default class SortingVisualizer extends React.Component {
       const col2Style = columns[idx2].style;
       if (type === "compare") {
         setTimeout(() => {
-          col1Style.backgroundColor = "blue";
-          col2Style.backgroundColor = "blue";
-        }, i * ANIMATION_SPEED_MS);
+          col1Style.backgroundColor = "red";
+          col2Style.backgroundColor = "red";
+        }, i * this.state.animationSpeed);
       } else if (type === "swap") {
         setTimeout(() => {
           const tempHeight = col1Style.height;
           col1Style.height = col2Style.height;
           col2Style.height = tempHeight;
-        }, i * ANIMATION_SPEED_MS);
+        }, i * this.state.animationSpeed);
       }
 
       setTimeout(() => {
         col1Style.backgroundColor = "";
         col2Style.backgroundColor = "";
-      }, (i + 1) * ANIMATION_SPEED_MS);
+      }, (i + 1) * this.state.animationSpeed);
       if (i === animations.length - 1) {
-        setTimeout(callback, (i + 1) * ANIMATION_SPEED_MS);
+        setTimeout(callback, (i + 1) * this.state.animationSpeed);
       }
     });
   }
@@ -115,9 +121,9 @@ export default class SortingVisualizer extends React.Component {
       const col2Style = columns[col2Idx].style;
 
       setTimeout(() => {
-        col1Style.backgroundColor = "blue";
-        col2Style.backgroundColor = "blue";
-      }, i * ANIMATION_SPEED_MS);
+        col1Style.backgroundColor = "red";
+        col2Style.backgroundColor = "red";
+      }, i * this.state.animationSpeed);
 
       setTimeout(() => {
         const tempHeight = col1Style.height;
@@ -128,9 +134,9 @@ export default class SortingVisualizer extends React.Component {
         col2Style.backgroundColor = "";
 
         if (i === animations.length - 1 && callback) {
-          setTimeout(callback, ANIMATION_SPEED_MS);
+          setTimeout(callback, this.state.animationSpeed);
         }
-      }, (i + 1) * ANIMATION_SPEED_MS);
+      }, (i + 1) * this.state.animationSpeed);
     }
   }
 
@@ -150,13 +156,13 @@ export default class SortingVisualizer extends React.Component {
       const [col1Idx, col2Idx, col1Height, col2Height] = animations[i];
 
       setTimeout(() => {
-        columns[col1Idx].style.backgroundColor = "blue";
-      }, i * ANIMATION_SPEED_MS);
+        columns[col1Idx].style.backgroundColor = "red";
+      }, i * this.state.animationSpeed);
 
       setTimeout(() => {
         columns[col1Idx].style.backgroundColor = "";
         columns[col2Idx].style.backgroundColor = "";
-      }, (i + 1) * ANIMATION_SPEED_MS);
+      }, (i + 1) * this.state.animationSpeed);
 
       setTimeout(() => {
         columns[col1Idx].style.height = `${col2Height}px`;
@@ -168,7 +174,7 @@ export default class SortingVisualizer extends React.Component {
           newArray[col1Idx],
         ];
         this.setState({ array: newArray });
-      }, (i + 1) * ANIMATION_SPEED_MS);
+      }, (i + 1) * this.state.animationSpeed);
     }
   }
 
@@ -187,15 +193,33 @@ export default class SortingVisualizer extends React.Component {
   // }
 
   render() {
-    const { array } = this.state;
+    const { array, numCols, animationSpeed } = this.state;
 
     return (
       <>
         <div className="control-bar">
-          <button onClick={() => this.mergeSort()}>Merge Sort</button>
-          <button onClick={() => this.quickSort()}>Quick Sort</button>
-          <button onClick={() => this.heapSort()}>Heap Sort</button>
-          <button onClick={() => this.bubbleSort()}>Bubble Sort</button>
+          <span id="heading" onClick={() => this.resetArray()}>
+            Initialize Array
+          </span>
+          <div id="slider">
+            <label>Change Array Size & Sorting Speed</label>
+            <input
+              type="range"
+              min="10"
+              max="100"
+              value={numCols}
+              onChange={this.handleSliderChange}
+            />
+            <p id="details">
+              {numCols} columns, {Math.floor(animationSpeed)} ms speed
+            </p>
+          </div>
+          <div className="algo-button-container">
+            <p onClick={() => this.mergeSort()}>Merge Sort</p>
+            <p onClick={() => this.quickSort()}>Quick Sort</p>
+            <p onClick={() => this.heapSort()}>Heap Sort</p>
+            <p onClick={() => this.bubbleSort()}>Bubble Sort</p>
+          </div>
           {/* <button onClick={() => this.testSortingAlgorithms()}>
             Test Algorithm
           </button> */}
@@ -209,7 +233,6 @@ export default class SortingVisualizer extends React.Component {
             ></div>
           ))}
         </div>
-        <h1 className="heading">Reload Page to Initialize Array</h1>
       </>
     );
   }
